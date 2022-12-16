@@ -1,0 +1,275 @@
+<html>
+    <head>
+        <title>TRADE ANALYZER</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js" integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    </head>
+  <body>
+    <form>
+        <div class="container">
+            <div class="row">
+              <div class="col-sm-6">
+        <label for="select1">TEAM 1:</label><br>
+        <input type="text" id="search1" placeholder="Search..." onkeyup="filterOptions(this, 'select1')">
+        <select class="col-sm-12" multiple id="select1" name="select1"></select><br>
+    </div>
+
+    <div class="col-sm-6">
+
+        <label for="select2">TEAM 2:</label><br>
+        <input type="text" id="search2" placeholder="Search..." onkeyup="filterOptions(this, 'select2')">
+        <select class="col-sm-12" multiple id="select2" name="select2"></select>
+    </div>
+              </div>
+              </div>
+      </form> 
+      <div class="container">
+        <div class="col">
+            <div class="row d-flex justify-content-center">
+              <div class="container">
+
+              <label for="quantity">Acceptable Difference:</label>
+<input type="number" id="acceptableDif" name="acceptableDif", value="3">
+
+    <button id="myButton" type="button" style="background-color:red; color: white;">ANALYZE</button>
+    <button id="clearButton" type="button">CLEAR</button>
+</div>
+</div>
+<div class="row">
+    <div class="container" id="result">
+      <div class="row">
+        <div  id="top"class="col-sm-12">
+        </div>
+        <div id="trade1" class="col-sm-6">
+    </div>
+    <div  id="trade2"class="col-sm-6">
+    </div>
+
+    <div  id="valid"class="col-sm-12">
+    </div>
+    </div>
+    </div>
+
+    
+</div>
+</div>
+</div>
+
+  </body>
+  <script>
+    let result = {};
+    let resultLastSeason = {};
+    const acceptableDiff = 3;
+    // get the select elements
+    const select1 = document.querySelector("#select1");
+    const select2 = document.querySelector("#select2");
+    
+    // make a GET request to the remote URL
+    fetch("https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=false&page=1&limit=500&sort=offensive.avgPoints%3Adesc&season=2022&seasontype=2")
+      .then(res => res.json())
+      .then(d => {
+        resultLastSeason = formatData(d)
+        console.log(Object.keys(resultLastSeason).length)
+      }).then(()=> {
+
+    fetch("https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=false&page=1&limit=500&sort=offensive.avgPoints:desc&season=2023&seasontype=2")
+      .then(response => response.json())
+      .then(data => {
+
+        result = formatData(data)
+        console.log(Object.keys(result).length)
+
+        // data is the array of objects with value and label properties
+        let c = 0;
+        Object.keys(result).forEach((key) => {
+          c++;
+            const player = result[key]
+          const option = document.createElement("option");
+          option.setAttribute("id", "select1-" + c)      
+          const option2 = document.createElement("option");
+          option2.setAttribute("id", "select2-" + key)
+          option.value = key;
+          option.text = player.name;       
+          option2.value = key;
+          option2.text = player.name;
+          select1.add(option);
+          select2.add(option2);
+        });
+        
+
+    });     
+   });
+
+
+
+       // filter options function
+    function filterOptions(input, selectId) {
+      const select = document.querySelector(`#${selectId}`);
+      const options = select.options;
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].text.toLowerCase().indexOf(input.value.toLowerCase()) > -1) {
+          options[i].style.display = "";
+        } else {
+          options[i].style.display = "none";
+        }
+      }
+    }
+
+    function formatData(data){
+      const res= {}
+      console.log("DATA:::", data)
+      for (const player of data.athletes) {
+            const athlete = player.athlete;
+            res[athlete.id] = {
+                name:athlete.displayName
+            };
+
+            player.categories.forEach((playerCat, catIndex) => {
+                playerCat.values.forEach((element, index) => {
+                    const category = data.categories[catIndex].names[index];
+                    res[athlete.id][category] = element;
+                });
+            });
+         }
+      return res;   
+    }
+    $('#clearButton').on('click', function() {
+      $('#valid').empty()
+      $('#top').empty()
+      $('#trade1').empty()
+      $('#trade2').empty()
+    });
+    $('#myButton').on('click', function() {
+      var trade1 = $('#select1').val()
+      var trade2 = $('#select2').val()
+      let total1 = 0;
+      let totalFp1 = 0;
+      let totalFpLast1 = 0;
+      let total2 = 0;
+      let totalFp2 = 0;
+      let totalFpLast2 = 0;
+      const acceptableDif = $("#acceptableDif").val() || 3;
+
+      $('#top').append(`<h5> Analyzing trade....</b></h5>`)
+
+      trade1.forEach((id) => {
+        const player = new Player(id);
+        totalFp1+=player.presentAVG
+        totalFpLast1+=player.pastAVG
+        total1+=player.value
+      $('#trade1').append(
+        `<div><p> <b>${result[id].name}</b> <br>
+          fantasy points AVG 2022-23 season: <b>${player.presentAVG}</b> <br>
+          fantasy points AVG 2021-22 season: <b>${player.pastAVG}</b><br>
+          Liga Sem merdas values: <b>${player.value}</b>
+          </div>`)
+      })
+      $('#trade1').append(`<h5> Total 2021-22 AVG: <b>${totalFpLast1}</b></h5>`)
+      $('#trade1').append(`<h5> Total 2022-23 AVG: <b>${totalFp1}</b></h5>`)
+      $('#trade1').append(`<h5> Total VALUE:  <b>${total1}</b></h5>`)
+      
+
+    
+      trade2.forEach((id) => {
+        const player = new Player(id);
+        totalFp2+=player.presentAVG
+        totalFpLast2+=player.pastAVG
+        total2+=player.value
+      $('#trade2').append(
+        `<div><p> <b>${result[id].name}</b> <br>
+          fantasy points AVG 2022-23 season: <b>${player.presentAVG}</b> <br>
+          fantasy points AVG 2021-22 season: <b>${player.pastAVG}</b><br>
+          Liga Sem merdas values: <b>${player.value}</b>
+          </div>`)
+              })
+      $('#trade2').append(`<h5> Total 2021-22 AVG: <b>${totalFpLast2}</b></h5>`)
+      $('#trade2').append(`<h5> Total 2022-23 AVG: <b>${totalFp2}</b></h5>`)
+      $('#trade2').append(`<h5> Total VALUE:  <b>${total2}</b></h5><br>`)
+
+
+      const diff = total1 - total2;
+      if (diff < -acceptableDiff) {
+        $('#valid').append(`<h5 style="color:red;"> TRADE INVALID, RIGTH SIDE OP, DIFF:${diff}</h5>`)
+    } else if (diff > acceptableDif) {
+      $('#valid').append(`<h5 style="color:red;"> TRADE INVALID, LEFT SIDE OP, DIFF:${diff}</h5>`)
+    } else {
+      $('#valid').append(`<h5 style="color:green;"> TRADE VALID</h5>`)
+    }      
+    
+    $('#valid').append(`<h5> ___________________________________________________________________</h5>`)
+
+    })
+  </script>
+  <script>
+    var fantasyBoxScore = {
+  points: 1,
+  fieldGoalsMade: 1,
+  //fieldGoalsAttempted: -0.5,
+  fieldGoalsMissed: -0.5,
+  doubleDouble: 4,
+  tripleDouble: 6,
+  rebounds: 1,
+  freeThrowsMade: 1,
+  //freeThrowsAttempted: -0.5,
+  freeThrowsMissed: -0.5,
+  assists: 1.5,
+  turnovers: -2.5,
+  threePointFieldGoalsMade: 0.75,
+  steals: 2.5,
+  blocks: 3,
+};
+ class Player {
+  constructor(id) {
+    this.gamesPlayed = 0;
+    this.id = id;
+    this.name = result[id].name;
+    this.currentSeasonData= result[id];
+    this.lastSeasonData= resultLastSeason[id];
+    this.presentAVG = this.getFantasyPoints(this.currentSeasonData);
+    this.pastAVG = this.getFantasyPoints(this.lastSeasonData);;
+    this.value = this.calculateValue();;
+  }
+
+  calculateValue() {
+    let value;
+    if (this.gamesPlayed <= 10) {
+      value = this.pastAVG * 0.7 + this.presentAVG * 0.3;
+    } else if (this.gamesPlayed <= 35) {
+      value = this.pastAVG * 0.4 + this.presentAVG * 0.6;
+    } else {
+      value = this.presentAVG;
+    }
+
+    console.log(`---${this.name}--- has value: ${value}`);
+    return value;
+  }
+  enrichData(data) {
+    console.log("---", this.id, data)
+    data.fieldGoalsMissed =
+      data.fieldGoalsAttempted -
+      data.fieldGoalsMade;
+
+    data.freeThrowsMissed =
+      data.freeThrowsAttempted -
+      data.freeThrowsMade;
+  }
+
+  getFantasyPoints(playerData){
+    console.log('A calcular media de ' + this.name);
+    console.log(playerData)
+    this.enrichData(playerData);
+    let fantasyScore = 0;
+    for (const key of Object.keys(fantasyBoxScore)) {
+      fantasyScore += fantasyBoxScore[key] * playerData[key];
+    }
+
+    return fantasyScore / playerData.gamesPlayed;
+  }
+}
+
+  </script>
+</html>
