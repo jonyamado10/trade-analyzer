@@ -1,81 +1,82 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <title>TRADE ANALYZER</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js" integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    </head>
-  <body>
-    <form>
-        <div class="container">
-            <div class="row">
-              <div class="col-sm-6">
-        <label for="select1">TEAM 1:</label><br>
-        <input type="text" id="search1" placeholder="Search..." onkeyup="filterOptions(this, 'select1')">
-        <select class="col-sm-12" multiple id="select1" name="select1"></select><br>
-    </div>
+<head>
+    <title>TRADE ANALYZER</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-3 justify-content-center d-flex">
+    <h1>Liga sem Merdas - Trade Analyzer</h1>
 
-    <div class="col-sm-6">
+  </div>
+  <div class="container mt-3 justify-content-center d-flex">
+    <img src="nick-young-swaggy-p.gif" alt="swaggy P">
 
-        <label for="select2">TEAM 2:</label><br>
-        <input type="text" id="search2" placeholder="Search..." onkeyup="filterOptions(this, 'select2')">
-        <select class="col-sm-12" multiple id="select2" name="select2"></select>
-    </div>
-              </div>
-              </div>
-      </form> 
-      <div class="container">
-        <div class="col">
-            <div class="row d-flex justify-content-center">
-              <div class="container">
+  </div>
+  <div class="container mt-5">
+    <div class="row">
+       <div class="col-sm-6">
+          <label for="select1">TEAM 1:</label><br>
+          <select class="form-control select2" multiple="multiple" id="select1"></select>
 
-              <label for="quantity">Acceptable Difference:</label>
-<input type="number" id="acceptableDif" name="acceptableDif", value="3">
-
-    <button id="myButton" type="button" style="background-color:red; color: white;">ANALYZE</button>
-    <button id="clearButton" type="button">CLEAR</button>
-</div>
-</div>
-<div class="row">
-    <div class="container" id="result">
-      <div class="row">
-        <div  id="top"class="col-sm-12">
-        </div>
-        <div id="trade1" class="col-sm-6">
+       </div>
+       <div class="col-sm-6">
+          <label for="select2">TEAM 2:</label><br>
+          <select class="form-control select2" multiple="multiple" id="select2"></select>
+       </div>
     </div>
-    <div  id="trade2"class="col-sm-6">
+ </div>
+ <div class="container mt-3">
+    <div class="col">
+       <div class="row">
+          <div class="container">
+             <label for="quantity">Acceptable Difference:</label>
+             <input type="number" id="acceptableDif" name="acceptableDif", value="3">
+             <button id="myButton" type="button" style="background-color:red; color: white;">ANALYZE</button>
+             <button id="clearButton" type="button">CLEAR</button>
+          </div>
+       </div>
+       <div class="row mt-3">
+          <div class="container" id="result">
+             <div class="row">
+                <div  id="top"class="col-sm-12">
+                </div>
+                <div id="trade1" class="col-sm-6">
+                </div>
+                <div  id="trade2"class="col-sm-6">
+                </div>
+                <div  id="valid"class="col-sm-12">
+                </div>
+             </div>
+          </div>
+       </div>
     </div>
-
-    <div  id="valid"class="col-sm-12">
-    </div>
-    </div>
-    </div>
-
-    
-</div>
-</div>
-</div>
-
-  </body>
+ </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script>
-    let result = {};
+let result = {};
     let resultLastSeason = {};
     const acceptableDiff = 3;
     // get the select elements
     const select1 = document.querySelector("#select1");
     const select2 = document.querySelector("#select2");
     
-    // make a GET request to the remote URL
-    fetch("https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=false&page=1&limit=500&sort=offensive.avgPoints%3Adesc&season=2022&seasontype=2")
+  $(document).ready(function() {
+    const selectData = []
+        // make a GET request to the remote URL
+        fetch("https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=false&page=1&limit=500&sort=offensive.avgPoints%3Adesc&season=2022&seasontype=2")
       .then(res => res.json())
       .then(d => {
         resultLastSeason = formatData(d)
         console.log(Object.keys(resultLastSeason).length)
-      }).then(()=> {
-
+      }).then(()=> {  
     fetch("https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=false&page=1&limit=500&sort=offensive.avgPoints:desc&season=2023&seasontype=2")
       .then(response => response.json())
       .then(data => {
@@ -86,39 +87,16 @@
         // data is the array of objects with value and label properties
         let c = 0;
         Object.keys(result).forEach((key) => {
-          c++;
-            const player = result[key]
-          const option = document.createElement("option");
-          option.setAttribute("id", "select1-" + c)      
-          const option2 = document.createElement("option");
-          option2.setAttribute("id", "select2-" + key)
-          option.value = key;
-          option.text = player.name;       
-          option2.value = key;
-          option2.text = player.name;
-          select1.add(option);
-          select2.add(option2);
+          selectData.push({id:key, text:result[key].name})
         });
-        
+        $(".select2").select2({
+            data: selectData
+        })
 
-    });     
-   });
-
-
-
-       // filter options function
-    function filterOptions(input, selectId) {
-      const select = document.querySelector(`#${selectId}`);
-      const options = select.options;
-      for (let i = 0; i < options.length; i++) {
-        if (options[i].text.toLowerCase().indexOf(input.value.toLowerCase()) > -1) {
-          options[i].style.display = "";
-        } else {
-          options[i].style.display = "none";
-        }
-      }
-    }
-
+    });             
+    });             
+       
+      });
     function formatData(data){
       const res= {}
       console.log("DATA:::", data)
@@ -136,8 +114,7 @@
             });
          }
       return res;   
-    }
-    $('#clearButton').on('click', function() {
+    }$('#clearButton').on('click', function() {
       $('#valid').empty()
       $('#top').empty()
       $('#trade1').empty()
@@ -163,8 +140,8 @@
         total1+=player.value
       $('#trade1').append(
         `<div><p> <b>${result[id].name}</b> <br>
-          fantasy points AVG 2022-23 season: <b>${player.presentAVG}</b> <br>
-          fantasy points AVG 2021-22 season: <b>${player.pastAVG}</b><br>
+          Fantasy points AVG 2022-23 season: <b>${player.presentAVG}</b> <br>
+          Fantasy points AVG 2021-22 season: <b>${player.pastAVG}</b><br>
           Liga Sem merdas values: <b>${player.value}</b>
           </div>`)
       })
@@ -181,8 +158,8 @@
         total2+=player.value
       $('#trade2').append(
         `<div><p> <b>${result[id].name}</b> <br>
-          fantasy points AVG 2022-23 season: <b>${player.presentAVG}</b> <br>
-          fantasy points AVG 2021-22 season: <b>${player.pastAVG}</b><br>
+          Fantasy points AVG 2022-23 season: <b>${player.presentAVG}</b> <br>
+          Fantasy points AVG 2021-22 season: <b>${player.pastAVG}</b><br>
           Liga Sem merdas values: <b>${player.value}</b>
           </div>`)
               })
@@ -193,11 +170,11 @@
 
       const diff = total1 - total2;
       if (diff < -acceptableDiff) {
-        $('#valid').append(`<h5 style="color:red;"> TRADE INVALID, RIGTH SIDE OP, DIFF:${diff}</h5>`)
+        $('#valid').append(`<h5 style="color:red;"> <b>TRADE INVALID<b/>, RIGTH SIDE OP, DIFF: <b>${diff}</b></h5>`)
     } else if (diff > acceptableDif) {
-      $('#valid').append(`<h5 style="color:red;"> TRADE INVALID, LEFT SIDE OP, DIFF:${diff}</h5>`)
+      $('#valid').append(`<h5 style="color:red;"> <b>TRADE INVALID<b/>, LEFT SIDE OP, DIFF: <b>${diff}</b></h5>`)
     } else {
-      $('#valid').append(`<h5 style="color:green;"> TRADE VALID</h5>`)
+      $('#valid').append(`<h5 style="color:green;"> <b>TRADE VALID<b/>, DIFF: <b>${diff}</b><</h5>`)
     }      
     
     $('#valid').append(`<h5> ___________________________________________________________________</h5>`)
@@ -224,7 +201,6 @@
 };
  class Player {
   constructor(id) {
-    this.gamesPlayed = 0;
     this.id = id;
     this.name = result[id].name;
     this.currentSeasonData= result[id];
@@ -236,12 +212,15 @@
 
   calculateValue() {
     let value;
-    if (this.gamesPlayed <= 10) {
-      value = this.pastAVG * 0.7 + this.presentAVG * 0.3;
-    } else if (this.gamesPlayed <= 35) {
-      value = this.pastAVG * 0.4 + this.presentAVG * 0.6;
+    if (this.currentSeasonData.gamesPlayed > 30 || this.currentSeasonData.gamesPlayed > this.lastSeasonData.gamesPlayed) {
+      value = this.presentAVG ;
     } else {
-      value = this.presentAVG;
+      const totalGamesPlayed = this.currentSeasonData.gamesPlayed + this.lastSeasonData.gamesPlayed;
+      const currentSeasonRatio = this.currentSeasonData.gamesPlayed/totalGamesPlayed;
+      const lastSeasonRatio = this.lastSeasonData.gamesPlayed/totalGamesPlayed;
+
+      value = this.presentAVG * currentSeasonRatio + this.pastAVG * lastSeasonRatio
+      
     }
 
     console.log(`---${this.name}--- has value: ${value}`);
