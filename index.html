@@ -93,7 +93,7 @@
         const selectData = [];
         // make a GET request to the remote URL
         fetch(
-          'https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=false&page=1&limit=500&sort=offensive.avgPoints%3Adesc&season=2022&seasontype=2',
+          'https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=false&page=1&limit=500&sort=offensive.avgPoints%3Adesc&season=2023&seasontype=2',
         )
           .then((res) => res.json())
           .then((d) => {
@@ -102,7 +102,7 @@
           })
           .then(() => {
             fetch(
-              'https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=false&page=1&limit=500&sort=offensive.avgPoints:desc&season=2023&seasontype=2',
+              'https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=false&page=1&limit=500&sort=offensive.avgPoints:desc&season=2024&seasontype=2',
             )
               .then((response) => response.json())
               .then((data) => {
@@ -164,16 +164,16 @@
           total1 += player.value;
           $('#trade1').append(
             `<div><p> <b>${result[id].name}</b> <br> 
-              Fantasy points AVG 2021-22 season: <b>${player.pastAVG}</b><br>
-          Fantasy points AVG 2022-23 season: <b>${player.presentAVG}</b> <br>
+              Fantasy points AVG 2022-23 season: <b>${player.pastAVG}</b><br>
+          Fantasy points AVG 2023-24 season: <b>${player.presentAVG}</b> <br>
           Liga Sem merdas values: <b>${player.value}</b>
           </div>`,
           );
         });
         $('#trade1').append(
-          `<h5> Total 2021-22 AVG: <b>${totalFpLast1}</b></h5>`,
+          `<h5> Total 2022-23 AVG: <b>${totalFpLast1}</b></h5>`,
         );
-        $('#trade1').append(`<h5> Total 2022-23 AVG: <b>${totalFp1}</b></h5>`);
+        $('#trade1').append(`<h5> Total 2023-24 AVG: <b>${totalFp1}</b></h5>`);
         $('#trade1').append(`<h5> Total VALUE:  <b>${total1}</b></h5>`);
 
         trade2.forEach((id) => {
@@ -183,16 +183,16 @@
           total2 += player.value;
           $('#trade2').append(
             `<div><p> <b>${result[id].name}</b> <br>
-              Fantasy points AVG 2021-22 season: <b>${player.pastAVG}</b><br>
-          Fantasy points AVG 2022-23 season: <b>${player.presentAVG}</b> <br>
+              Fantasy points AVG 2022-23 season: <b>${player.pastAVG}</b><br>
+          Fantasy points AVG 2023-24 season: <b>${player.presentAVG}</b> <br>
           Liga Sem merdas values: <b>${player.value}</b>
           </div>`,
           );
         });
         $('#trade2').append(
-          `<h5> Total 2021-22 AVG: <b>${totalFpLast2}</b></h5>`,
+          `<h5> Total 2022-23 AVG: <b>${totalFpLast2}</b></h5>`,
         );
-        $('#trade2').append(`<h5> Total 2022-23 AVG: <b>${totalFp2}</b></h5>`);
+        $('#trade2').append(`<h5> Total 2023-24 AVG: <b>${totalFp2}</b></h5>`);
         $('#trade2').append(`<h5> Total VALUE:  <b>${total2}</b></h5><br>`);
 
         const diff = total1 - total2;
